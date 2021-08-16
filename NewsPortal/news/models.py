@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+#from django.db.models import Sum
 
 
 class Author(models.Model):
@@ -7,6 +8,10 @@ class Author(models.Model):
     autorsRating = models.SmallIntegerField(default=0)
 
     def update_rating(self):
+        # pr = self.post_set.aggregate(SumPostRating=Sum('postRating'))
+        # prt = 0
+        # prt += pr.get('SumPostRating')
+
         postsRating = Post.objects.filter(postAuthor=self.authorUser).values('postRating')
         postsRating = sum(postsRating)*3
         self.rating=postsRating
