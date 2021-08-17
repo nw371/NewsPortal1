@@ -1,6 +1,8 @@
 #django-admin startproject NewsPortal
 #python3 manage.py startapp news
 
+#python3 manage.py makemigrations
+#python3 manage.py migrate
 
 #exec(open('shell_commands.py').read())
 
@@ -16,15 +18,19 @@ postQTY = 16
 commQTY = 26
 catQTY = 5
 
-for n in range(1, catQTY):
-    globals()[f'cat{n}'] = Category.objects.create(name=f'Category{n}')
-
+#Создать двух пользователей (с помощью метода User.objects.create_user)
 for n in range(1, usersQTY):
     globals()[f'user{n}'] = User.objects.create_user(username=f"UserName{n}", password=f"UN{n}pass")
 
+#Создать два объекта модели Author, связанные с пользователями.
 for n in range(1, authQTY):
     globals()[f'author{n}'] = Author.objects.create(authorUser=globals()[f'user{n}'])
 
+#Добавить 4 категории в модель Category
+for n in range(1, catQTY):
+    globals()[f'cat{n}'] = Category.objects.create(name=f'Category{n}')
+
+#Добавить 2 статьи и 1 новость
 for n in range(1, postQTY):
     globals()[f'post{n}'] = Post.objects.create(postType=f'{random.choice(ptype)}',
                                 postName=f'Post {n} Name',
@@ -34,16 +40,29 @@ for n in range(1, postQTY):
                                          f'Just ID1 to make sure this post belongs to Post {n}',
                                 postAuthor=Author.objects.get(id=random.choice(aindex)),
                                 )
+#Присвоить им категории
+for n in range(1, postQTY):
+    Post.objects.get(id=n).postCategory.add(Category.objects.get(id=random.choice(range(1,catQTY))))
+
+#(как минимум в одной статье/новости должно быть не меньше 2 категорий)
+for n in [3,5,7]:
+    Post.objects.get(id=n).postCategory.add(Category.objects.get(id=random.choice(range(1, catQTY))))
+
+#Создать как минимум 4 комментария к разным объектам модели Post (в каждом объекте должен быть как минимум один комментарий).
 for n in range(1, commQTY):
     globals()[f'comment{n}'] = Comment.objects.create(post=globals()[f'post{random.choice(range(1,postQTY))}'],
                                                       user=globals()[f'user{random.choice(range(1,usersQTY))}'],
                                                       commentBody=f'Generated comment {n} body.')
 
-for n in range(1, postQTY):
-    Post.objects.get(id=n).postCategory.add(Category.objects.get(id=random.choice(range(1,catQTY))))
-
+#Применяя функции like() и dislike() к статьям/новостям и комментариям, скорректировать рейтинги этих объектов.
 for n in range(1,100):
     Comment.like(Comment.objects.get(id=random.choice(range(1,commQTY))))
     Post.like(Post.objects.get(id=random.choice(range(1,postQTY))))
 
-# Author.objects.get(id=1)
+#Обновить рейтинги пользователей.
+
+#Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
+
+#Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье.
+
+#Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
