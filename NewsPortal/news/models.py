@@ -1,21 +1,31 @@
 from django.contrib.auth.models import User
 from django.db import models
-#from django.db.models import Sum
+from django.db.models import Sum
 
 
 class Author(models.Model):
     authorUser = models.OneToOneField(User, on_delete=models.CASCADE)
-    autorsRating = models.SmallIntegerField(default=0)
+    autorRating = models.SmallIntegerField(default=0)
 
     def update_rating(self):
-        # pr = self.post_set.aggregate(SumPostRating=Sum('postRating'))
-        # prt = 0
-        # prt += pr.get('SumPostRating')
+        #суммарный рейтинг каждой статьи автора
+        PoRe = self.post_set.aggregate(SumPostRating=Sum('postRating'))
+        pstrtng = 0
+        pstrtng += PoRe.get('SumPostRating')
 
-        postsRating = Post.objects.filter(postAuthor=self.authorUser).values('postRating')
-        postsRating = sum(postsRating)*3
-        self.rating=postsRating
+        #суммарный рейтинг всех комментариев автора
+        CoRe = self.authorUser.comment_set.aggregate(SumComsRating=Sum('commentRating'))
+        cmmrtng = 0
+        cmmrtng += CoRe.get('SumComsRating')
+
+        #суммарный рейтинг всех комментариев к статьям автора
+        AuPoRe = self.authorUser.post_set.aggregate(SumAurPstsRating = Sum('commentRating'))
+        athrpstrthg = 0
+        athrpstrthg += AuPoRe.get('SumAurPstsRating')
+
+        self.autorRating = pstrtng*3+cmmrtng+athrpstrthg
         self.save()
+
 
 class Category(models.Model):
     name = models.CharField(max_length=128, unique=True)
@@ -34,7 +44,7 @@ class Post(models.Model):
     postBody = models.TextField()
     postRating = models.SmallIntegerField(default=0)
 
-    postAuthor = models.ForeignKey(Author, on_delete=models.CASCADE)
+    postAuthor = models.ForeignKey(Author, on_delete=modelPos.CASCADE)
     postCategory = models.ManyToManyField(Category, through='PostCategory')
 
     def preview(self):
