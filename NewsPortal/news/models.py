@@ -8,34 +8,35 @@ class Author(models.Model):
     autorRating = models.SmallIntegerField(default=0)
 
     def update_rating(self):
-        #суммарный рейтинг каждой статьи автора
-        PoRe = self.post_set.aggregate(SumPostRating=Sum('postRating'))
+        # суммарный рейтинг каждой статьи автора
+        poRe = self.post_set.aggregate(SumPostRating=Sum('postRating'))
         pstrtng = 0
-        pstrtng += PoRe.get('SumPostRating')
+        pstrtng += poRe.get('SumPostRating')
 
-        #суммарный рейтинг всех комментариев автора
-        CoRe = self.authorUser.comment_set.aggregate(SumComsRating=Sum('commentRating'))
+        # суммарный рейтинг всех комментариев автора
+        coRe = self.authorUser.comment_set.aggregate(SumComsRating=Sum('commentRating'))
         cmmrtng = 0
-        cmmrtng += CoRe.get('SumComsRating')
+        cmmrtng += coRe.get('SumComsRating')
 
-        #суммарный рейтинг всех комментариев к статьям автора
-        AuPoRe = self.authorUser.post_set.aggregate(SumAurPstsRating = Sum('commentRating'))
+        # суммарный рейтинг всех комментариев к статьям автора
+        auPoRe = self.authorUser.post_set.aggregate(SumAurPstsRating=Sum('commentRating'))
         athrpstrthg = 0
-        athrpstrthg += AuPoRe.get('SumAurPstsRating')
+        athrpstrthg += auPoRe.get('SumAurPstsRating')
 
-        self.autorRating = pstrtng*3+cmmrtng+athrpstrthg
+        self.autorRating = pstrtng * 3 + cmmrtng + athrpstrthg
         self.save()
 
 
 class Category(models.Model):
     name = models.CharField(max_length=128, unique=True)
 
+
 class Post(models.Model):
     news = 'NS'
     article = 'AL'
     TYPES = [
-        (news,'Новость'),
-        (article,'Статья')
+        (news, 'Новость'),
+        (article, 'Статья')
     ]
 
     postType = models.CharField(max_length=2, choices=TYPES, default='NS')
@@ -44,7 +45,7 @@ class Post(models.Model):
     postBody = models.TextField()
     postRating = models.SmallIntegerField(default=0)
 
-    postAuthor = models.ForeignKey(Author, on_delete=modelPos.CASCADE)
+    postAuthor = models.ForeignKey(Author, on_delete=models.CASCADE)
     postCategory = models.ManyToManyField(Category, through='PostCategory')
 
     def preview(self):
@@ -59,9 +60,11 @@ class Post(models.Model):
         self.postRating -= 1
         self.save()
 
+
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
