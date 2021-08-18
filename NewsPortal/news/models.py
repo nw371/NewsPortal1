@@ -21,13 +21,24 @@ class Author(models.Model):
         cmmrtng += coRe.get('SumComsRating')
 
         # суммарный рейтинг всех комментариев к статьям автора
+        # 1. Выбрать все стати автора
+        x = 0
+        allPosts = Post.objects.filter(postAuthor_id=self.id).values('id')
+        for i in allPosts:
+            print(i)
+            globals()[f'p{i}'] = Comment.objects.filter(post_id = i['id']).values('commentRating')
+            for j in globals()[f'p{i}']:
+                x = x + j['commentRating']
+        #
+        # 2. Выбрать рейтинг комментов к каждой статьи
         # auPoRe = self.post.comment_set.aggregate(SumAurPstsRating=Sum('commentRating'))
         # athrpstrthg = 0
         # athrpstrthg += auPoRe.get('SumAurPstsRating')
 
-        self.autorRating = pstrtng * 3 + cmmrtng# + athrpstrthg
+        # self.autorRating = pstrtng * 3 + cmmrtng# + athrpstrthg
+        # self.save()
+        self.autorRating = x
         self.save()
-
 
 class Category(models.Model):
     #единственное поле: название категории. Поле должно быть уникальным
