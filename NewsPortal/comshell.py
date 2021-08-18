@@ -4,7 +4,7 @@
 #python3 manage.py makemigrations
 #python3 manage.py migrate
 
-#exec(open('shell_commands.py').read())
+#exec(open('comshell.py').read())
 
 from news.models import *
 
@@ -60,9 +60,15 @@ for n in range(1,100):
     Post.like(Post.objects.get(id=random.choice(range(1,postQTY))))
 
 #Обновить рейтинги пользователей.
+for n in range(1,3):
+    Author.objects.get(id=n).update_rating()
+    # globals()[f'auth{n}'] = Author.objects.get(id=n)
+    # globals()[f'auth{n}'].update_rating()
 
 #Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
+Author.objects.order_by('-autorRating')[:1]
 
 #Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье.
+Post.objects.order_by('-postRating')[:1].values()
 
 #Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
