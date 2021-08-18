@@ -4,9 +4,9 @@ from django.db.models import Sum
 
 
 class Author(models.Model):
-    #cвязь «один к одному» с встроенной моделью пользователей User;
+    # cвязь «один к одному» с встроенной моделью пользователей User;
     authorUser = models.OneToOneField(User, on_delete=models.CASCADE)
-    #рейтинг пользователя
+    # рейтинг пользователя
     autorRating = models.SmallIntegerField(default=0)
 
     def update_rating(self):
@@ -21,27 +21,21 @@ class Author(models.Model):
         cmmrtng += coRe.get('SumComsRating')
 
         # суммарный рейтинг всех комментариев к статьям автора
-        # 1. Выбрать все стати автора
         x = 0
         allPosts = Post.objects.filter(postAuthor_id=self.id).values('id')
+        # сначала пробегаем через все посты автора, чтобы подцепить коменты
         for i in allPosts:
-            print(i)
-            globals()[f'p{i}'] = Comment.objects.filter(post_id = i['id']).values('commentRating')
+            globals()[f'p{i}'] = Comment.objects.filter(post_id=i['id']).values('commentRating')
+            # и потом выдёргиваем рейтинги коментов
             for j in globals()[f'p{i}']:
                 x = x + j['commentRating']
-        #
-        # 2. Выбрать рейтинг комментов к каждой статьи
-        # auPoRe = self.post.comment_set.aggregate(SumAurPstsRating=Sum('commentRating'))
-        # athrpstrthg = 0
-        # athrpstrthg += auPoRe.get('SumAurPstsRating')
 
-        # self.autorRating = pstrtng * 3 + cmmrtng# + athrpstrthg
-        # self.save()
-        self.autorRating = x
+        self.autorRating = pstrtng * 3 + cmmrtng + x
         self.save()
 
+
 class Category(models.Model):
-    #единственное поле: название категории. Поле должно быть уникальным
+    # единственное поле: название категории. Поле должно быть уникальным
     name = models.CharField(max_length=128, unique=True)
 
 
@@ -53,20 +47,20 @@ class Post(models.Model):
         (article, 'Статья')
     ]
 
-    #поле с выбором — «статья» или «новость»
+    # поле с выбором — «статья» или «новость»
     postType = models.CharField(max_length=2, choices=TYPES, default='NS')
-    #автоматически добавляемая дата и время создания
+    # автоматически добавляемая дата и время создания
     postDate = models.DateField(auto_now_add=True)
-    #заголовок статьи/новости
+    # заголовок статьи/новости
     postName = models.CharField(max_length=255)
-    #текст статьи/новости
+    # текст статьи/новости
     postBody = models.TextField()
-    #рейтинг статьи/новости
+    # рейтинг статьи/новости
     postRating = models.SmallIntegerField(default=0)
 
-    #связь «один ко многим» с моделью Author
+    # связь «один ко многим» с моделью Author
     postAuthor = models.ForeignKey(Author, on_delete=models.CASCADE)
-    #связь «многие ко многим» с моделью Category (с дополнительной моделью PostCategory)
+    # связь «многие ко многим» с моделью Category (с дополнительной моделью PostCategory)
     postCategory = models.ManyToManyField(Category, through='PostCategory')
 
     def preview(self):
@@ -83,22 +77,22 @@ class Post(models.Model):
 
 
 class PostCategory(models.Model):
-    #связь «один ко многим» с моделью Post
+    # связь «один ко многим» с моделью Post
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    #связь «один ко многим» с моделью Category
+    # связь «один ко многим» с моделью Category
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
 
 class Comment(models.Model):
-    #связь «один ко многим» с моделью Post
+    # связь «один ко многим» с моделью Post
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    #связь «один ко многим» с встроенной моделью User
+    # связь «один ко многим» с встроенной моделью User
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    #текст комментария
+    # текст комментария
     commentBody = models.TextField()
-    #дата и время создания комментария
+    # дата и время создания комментария
     commentDate = models.DateField(auto_now_add=True)
-    #рейтинг комментария
+    # рейтинг комментария
     commentRating = models.SmallIntegerField(default=0)
 
     def like(self):

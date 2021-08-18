@@ -1,3 +1,5 @@
+#CHEATSHEET КОМАНД
+
 # django-admin startproject NewsPortal
 # python3 manage.py startapp news
 
@@ -6,6 +8,7 @@
 
 # exec(open('comshell.py').read())
 
+#ГЕНЕРАТЦИЯ ДАННЫХ
 from news.models import *
 
 import random
@@ -59,26 +62,30 @@ for n in range(1, 100):
     Comment.like(Comment.objects.get(id = random.choice(range(1, commQTY))))
     Post.like(Post.objects.get(id = random.choice(range(1, postQTY))))
 
+
 # Обновить рейтинги пользователей.
 for n in range(1, 3):
     Author.objects.get(id = n).update_rating()
-    # globals()[f'auth{n}'] = Author.objects.get(id=n)
-    # globals()[f'auth{n}'].update_rating()
+
+
+#ВЫДОД ДАННЫХ
 
 # Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
 Author.objects.order_by('-autorRating')[:1]
-2
 
 # Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье.
+pid = 0 #сохраним сюда айди поста, чтобы потом использовать для выведения коментов
 p = Post.objects.order_by('-postRating')[:1].values()
 for i in p:
-    i['postDate']
-    Author.objects.get(id = i['postAuthor_id']).authorUser.username
-    i['postRating']
-    i['postName']
-    Post.objects.get(id=i['id']).preview()
+    print(f"Дата поста: {i['postDate']}")
+    print(f"Автор поста: {Author.objects.get(id=i['postAuthor_id']).authorUser.username}")
+    print(f"Рейтинг поста: {i['postRating']}")
+    print(f"Заголовок поста: {i['postName']}")
+    print(f"Предпросмотр поста: {Post.objects.get(id=i['id']).preview()}")
+    pid = i['id']
+
 # Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
-c = Comment.objects.filter(post=6)
+c = Comment.objects.filter(post=pid) #используем сохранённый айди поста
 for i in c.values():
     print(f"Comment date: {i['commentDate']}")
     usr = i["user_id"]
